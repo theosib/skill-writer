@@ -1,10 +1,10 @@
 # skill-writer
 
-A Claude Code skill for writing high-quality, token-efficient LLM skills optimized for modern models (2025–2026).
+A Claude Code skill for writing high-quality, token-efficient skills optimized for modern models (2025–2026).
 
 ## What this does
 
-**skill-writer** guides you through creating Claude Code skills that are compact, unambiguous, and effective across current-generation LLMs (Claude 4.x, GPT-5.x, Gemini 3). It focuses on *instruction writing quality* — how to craft rules, examples, and structure that models follow reliably.
+**skill-writer** is a Claude Code skill that guides you through creating other skills. It targets the Claude Code SKILL.md format primarily, but its writing principles — instruction clarity, token efficiency, and positive framing — are drawn from research across all major LLM families (Claude 4.x, GPT-5.x, Gemini 3). Skills produced with skill-writer should be more portable across models than typical Claude-only prompts, though Claude Code remains the primary platform.
 
 ## How it relates to Anthropic's skill-creator
 
@@ -18,14 +18,14 @@ Anthropic publishes an official [skill-creator](https://github.com/anthropics/sk
 | **Method** | Eval framework with assertions and scoring | Interpretation testing — can a fresh agent understand the skill? |
 | **Optimizes for** | Output correctness on benchmarks | Instruction clarity, token efficiency, cross-model portability |
 | **Knowledge base** | Anthropic best practices | Synthesized from Anthropic, OpenAI, Google, Meta, Cohere, and academic research |
-| **Model targeting** | Claude-specific | Cross-model (Claude 4.x, GPT-5.x, Gemini 3) |
+| **Model targeting** | Claude-specific | Claude Code primary, informed by cross-model research |
 
 You can use both together: skill-writer to *write* the skill well, then skill-creator to *evaluate* it systematically.
 
 ## What extra value skill-writer brings
 
 ### 1. Cross-provider best practices
-The reference documents synthesize guidance from all major LLM providers' 2025–2026 documentation — not just Anthropic. This matters because skills may be adapted for use outside Claude Code (e.g., pasted into ChatGPT or Gemini system prompts), and because different providers have discovered different failure modes.
+The reference documents synthesize guidance from all major LLM providers' 2025–2026 documentation — not just Anthropic. Different providers have discovered different failure modes and best practices. Even if you only target Claude Code, writing skills informed by what works across models produces clearer, more robust instructions. And if you ever adapt a skill for another platform, the portability guidance is already built in.
 
 ### 2. Modern model calibration
 Prompting advice from 2023 (ALL-CAPS emphasis, chain-of-thought on reasoning models, emotional appeals) actively harms performance on current models. skill-writer includes an anti-patterns reference that flags outdated practices and explains *why* they fail now.
@@ -36,8 +36,8 @@ Built on empirical compression research ([token-compact](https://github.com/theo
 ### 4. Interpretation testing
 Instead of only checking "did the skill produce the right output," skill-writer tests "does a fresh agent correctly *understand* the skill." This catches ambiguities, contradictions, and gaps that output-based testing can miss — because a skill might produce correct output despite unclear instructions (the model fills in gaps from training data), then fail unpredictably on edge cases.
 
-### 5. Cross-model portability guidance
-Identifies Claude-specific behaviors (XML tag semantics, prefilled responses, thinking tags) that won't transfer to other models, and offers universal alternatives.
+### 5. Portability awareness
+Identifies Claude-specific behaviors (XML tag semantics, prefilled responses, thinking tags) and flags when a skill relies on them. This helps you make informed choices: use Claude-specific features when they're the best tool, but know which parts would need adjustment if the skill is ever adapted for other platforms.
 
 ## Quick start
 

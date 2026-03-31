@@ -165,7 +165,8 @@ Before delivering the skill, verify:
 
 ## Output
 
-Deliver the complete skill directory:
+Write the skill to the **project directory** (e.g., `.claude/skills/skill-name/` within the current working directory or a path the user specifies). Do NOT install directly to `~/.claude/skills/` unless the user explicitly asks.
+
 ```
 skill-name/
   SKILL.md              # Main skill file
@@ -173,4 +174,10 @@ skill-name/
   scripts/              # Optional: executable tools
 ```
 
-Report: skill name, description, line count, estimated token cost (SKILL.md body only), and validation results summary.
+After writing, report: skill name, description, line count, estimated token cost (SKILL.md body only), and validation results summary.
+
+Then ask the user what they'd like to do next:
+- Review and edit the files before installing
+- Install to `~/.claude/skills/` for global access
+- Install to a specific project's `.claude/skills/`
+- Commit to a git repository

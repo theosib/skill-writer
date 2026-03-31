@@ -63,6 +63,13 @@ Don't overload a single bullet with multiple requirements. Each instruction shou
 - Keep novel/project-specific content at full detail — this can't be reconstructed from training data
 - For skills >300 lines, triage sections by information density before compressing
 
+### Compression loss categories (verify after compressing)
+- **Meaning inversions** (critical): telegraphic rewriting can flip cause-effect. "X adds latency; bypass X" → "X bypass adds latency" inverts the meaning. Always re-read compressed output for subject-object accuracy.
+- **Numeric specifics**: concrete figures are reference data, not filler. Preserve them.
+- **Decision criteria**: "when to use X" sections are guidance, not redundancy. Preserve them.
+- **Code comments with WHY**: rationale comments are novel content. Preserve them.
+- **Derivation context**: `80` is correct but `8 * 10` shows reasoning. Keep derivations when not self-explanatory.
+
 ## 4. Cross-Model Portability
 
 ### Universal practices (work across all current models)

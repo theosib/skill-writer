@@ -147,6 +147,16 @@ If compression is needed:
 
 If the `token-compact` skill is available, use it on the final SKILL.md and report token savings.
 
+**After compressing, always verify for loss.** Compression can introduce errors:
+
+1. **Meaning inversions** (critical): Telegraphic rewriting can flip cause-effect or subject-object relationships. Example: "The synchronizer adds latency; bypass it" compressed to "sync bypass adds latency" inverts the meaning. Re-read every compressed statement and confirm it says what the original said.
+2. **Numeric specifics**: Concrete figures ("10+ cycles", "~20% faster", "32 instructions max") are reference data. Treat them like novel content — preserve at full detail.
+3. **Decision criteria**: Sections explaining WHEN to use something are guidance, not redundant explanation. They should survive compression.
+4. **Code comments with WHY**: Comments explaining rationale (`// DMA paced by producer's DREQ`) are novel content, not labels. Preserve them.
+5. **Derivation context**: `value / 80` is correct but `value / (8 * 10)` shows reasoning. Keep derivations when the formula isn't self-explanatory.
+
+**Verification method:** Spawn a subagent that receives both the original and compressed versions. Have it list every fact in the original, then check whether each survives in the compressed version. Pay special attention to meaning inversions — they are the most dangerous compression error because they silently teach wrong behavior.
+
 ## Quality Checklist
 
 Before delivering the skill, verify:
@@ -156,12 +166,14 @@ Before delivering the skill, verify:
 - [ ] No ALL-CAPS emphasis or aggressive language
 - [ ] No explanations of well-known technologies
 - [ ] Novel/project-specific content preserved at full detail
+- [ ] Numeric specifics, decision criteria, and code rationale comments preserved
 - [ ] WHY provided for non-obvious rules
 - [ ] Cross-references used instead of repetition
 - [ ] SKILL.md body ≤300 lines (or justified if longer)
 - [ ] If research was done: findings distilled into `references/`, raw research saved separately
 - [ ] Interpretation test passed (autonomous fix cycle completed)
 - [ ] At least 2 stress-test assertions verified
+- [ ] If compressed: loss verification completed, no meaning inversions found
 
 ## Output
 

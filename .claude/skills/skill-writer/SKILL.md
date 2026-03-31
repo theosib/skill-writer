@@ -24,6 +24,30 @@ Interview the user to establish:
 
 Keep the interview to ≤6 questions. Don't ask about things you can infer from the answers.
 
+### Phase 1.5: Research (when the skill encodes domain expertise)
+
+Skip this phase for simple workflow skills (commit messages, code formatting). Use it when the skill needs to make Claude an expert in a specialized domain — hardware APIs, niche protocols, specific frameworks, etc.
+
+**Decide whether research is needed:** If the user could write the skill from their own knowledge in one sitting, skip to Phase 2. If the skill needs to encode knowledge from forums, documentation, examples, and community wisdom, do research first.
+
+**Research process:**
+1. Ask the user to identify research tracks — the major knowledge areas the skill needs to cover. Suggest tracks based on the Phase 1 answers if the user doesn't have a list.
+2. Launch parallel subagents (one per track) to search the web, GitHub repos, forums, and documentation. Each subagent should:
+   - Search for examples, patterns, and common solutions
+   - Identify pitfalls, edge cases, and non-obvious behaviors
+   - Collect community-discovered tricks and best practices
+   - Note version/platform differences if applicable
+3. Save research findings to files (e.g., `research/track-name.md`) before proceeding. These files become the raw material for the skill's reference documents.
+4. Ask the user to review findings and contribute their own examples or corrections. Domain experts often know tricks that aren't documented online.
+
+**Research quality criteria:**
+- Each track should have at least 3 concrete examples with code/config
+- Pitfalls should explain WHY they fail, not just WHAT fails
+- Community tricks should be verified against official documentation where possible
+- Note which findings are well-established vs experimental/untested
+
+The research files are intermediate artifacts — they'll be distilled into the skill's `references/` directory during Phase 2, keeping only what's needed for the skill to function.
+
 ### Phase 2: Write the Skill
 
 Apply these principles (details in `references/best-practices.md`):
@@ -131,6 +155,7 @@ Before delivering the skill, verify:
 - [ ] WHY provided for non-obvious rules
 - [ ] Cross-references used instead of repetition
 - [ ] SKILL.md body ≤300 lines (or justified if longer)
+- [ ] If research was done: findings distilled into `references/`, raw research saved separately
 - [ ] Interpretation test passed
 - [ ] At least 2 stress-test assertions verified
 

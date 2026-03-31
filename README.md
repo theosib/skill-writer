@@ -20,23 +20,26 @@ Anthropic publishes an official [skill-creator](https://github.com/anthropics/sk
 | **Knowledge base** | Anthropic best practices | Synthesized from Anthropic, OpenAI, Google, Meta, Cohere, and academic research |
 | **Model targeting** | Claude-specific | Claude Code primary, informed by cross-model research |
 
-You can use both together: skill-writer to *write* the skill well, then skill-creator to *evaluate* it systematically.
+You can use both together: skill-writer to *research and write* the skill well, then skill-creator to *evaluate* it systematically.
 
 ## What extra value skill-writer brings
 
 ### 1. Cross-provider best practices
 The reference documents synthesize guidance from all major LLM providers' 2025–2026 documentation — not just Anthropic. Different providers have discovered different failure modes and best practices. Even if you only target Claude Code, writing skills informed by what works across models produces clearer, more robust instructions. And if you ever adapt a skill for another platform, the portability guidance is already built in.
 
-### 2. Modern model calibration
+### 2. Built-in research phase
+For skills that encode domain expertise (hardware APIs, niche protocols, specialized frameworks), skill-writer includes a research phase that launches parallel subagents to search forums, GitHub repos, and documentation before writing. Most skill-creation tools assume you already know everything the skill needs to say — skill-writer helps you *discover* what it needs to say first, then distills the findings into compact reference documents.
+
+### 3. Modern model calibration
 Prompting advice from 2023 (ALL-CAPS emphasis, chain-of-thought on reasoning models, emotional appeals) actively harms performance on current models. skill-writer includes an anti-patterns reference that flags outdated practices and explains *why* they fail now.
 
-### 3. Token efficiency from research
+### 4. Token efficiency from research
 Built on empirical compression research ([token-compact](https://github.com/theosib/token-compact)) measuring actual token costs of formatting choices. For example: numbered lists add +140% overhead vs bare words, JSON wrapping adds +93%, and abbreviating technical terms like `authentication` saves zero tokens because they're already single BPE tokens.
 
-### 4. Interpretation testing
+### 5. Interpretation testing
 Instead of only checking "did the skill produce the right output," skill-writer tests "does a fresh agent correctly *understand* the skill." This catches ambiguities, contradictions, and gaps that output-based testing can miss — because a skill might produce correct output despite unclear instructions (the model fills in gaps from training data), then fail unpredictably on edge cases.
 
-### 5. Portability awareness
+### 6. Portability awareness
 Identifies Claude-specific behaviors (XML tag semantics, prefilled responses, thinking tags) and flags when a skill relies on them. This helps you make informed choices: use Claude-specific features when they're the best tool, but know which parts would need adjustment if the skill is ever adapted for other platforms.
 
 ## Quick start
@@ -62,7 +65,7 @@ python .claude/skills/skill-writer/scripts/validate_skill.py path/to/SKILL.md --
 
 ```
 .claude/skills/skill-writer/
-├── SKILL.md                          # Main skill (6-phase workflow)
+├── SKILL.md                          # Main skill (7-phase workflow with research)
 ├── references/
 │   ├── best-practices.md             # Synthesized from all major LLM providers
 │   └── anti-patterns.md              # Outdated practices that hurt modern models

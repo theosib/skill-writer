@@ -14,7 +14,7 @@ Read `references/best-practices.md` and `references/anti-patterns.md` in this sk
 
 ### Phase 1: Capture Intent
 
-Interview the user to establish:
+Establish what the skill does by answering these 6 questions:
 1. **What does the skill do?** — one sentence, verb-first ("Generates...", "Transforms...", "Reviews...")
 2. **When should it trigger?** — what user phrases or file patterns activate it
 3. **What inputs does it need?** — arguments, file contents, context
@@ -22,7 +22,7 @@ Interview the user to establish:
 5. **Any constraints?** — model tier, tool restrictions, side effects, security
 6. **Cross-model?** — will this skill be used outside Claude Code (e.g., pasted into ChatGPT, Gemini)?
 
-Keep the interview to ≤6 questions. Don't ask about things you can infer from the answers.
+**Adaptive interviewing:** If the user provides comprehensive answers upfront (in their initial message or a prepared brief), skip to confirmation rather than asking each question sequentially. Only ask about gaps. If all 6 are covered, confirm your understanding in one message and move on.
 
 ### Phase 1.5: Research (when the skill encodes domain expertise)
 
@@ -30,15 +30,27 @@ Skip this phase for simple workflow skills (commit messages, code formatting). U
 
 **Decide whether research is needed:** If the user could write the skill from their own knowledge in one sitting, skip to Phase 2. If the skill needs to encode knowledge from forums, documentation, examples, and community wisdom, do research first.
 
-**Research process:**
-1. Ask the user to identify research tracks — the major knowledge areas the skill needs to cover. Suggest tracks based on the Phase 1 answers if the user doesn't have a list.
-2. Launch parallel subagents (one per track) to search the web, GitHub repos, forums, and documentation. Each subagent should:
+**Auto-generate research tracks:** Based on Phase 1 answers, propose 3–6 research tracks covering the skill's knowledge areas. Common track patterns:
+- Core patterns/examples for the domain
+- Integration with adjacent systems (DMA, databases, build tools, etc.)
+- Advanced techniques and community-discovered tricks
+- Common pitfalls and debugging approaches
+- Version/platform differences (if applicable)
+
+Present the proposed tracks to the user for approval or modification before launching.
+
+**Parallelize research and code exploration:** If the user provides example code paths or a project directory, launch code exploration agents in parallel with web research agents. Don't wait for research to finish before examining existing code.
+
+**Research execution:**
+1. Launch parallel subagents (one per track) to search the web, GitHub repos, forums, and documentation. Each subagent should:
    - Search for examples, patterns, and common solutions
    - Identify pitfalls, edge cases, and non-obvious behaviors
    - Collect community-discovered tricks and best practices
    - Note version/platform differences if applicable
-3. Save research findings to files (e.g., `research/track-name.md`) before proceeding. These files become the raw material for the skill's reference documents.
-4. Ask the user to review findings and contribute their own examples or corrections. Domain experts often know tricks that aren't documented online.
+2. Save research findings to files (e.g., `research/track-name.md`) before proceeding. These files become raw material for the skill's reference documents.
+3. Ask the user to review findings and contribute their own examples or corrections.
+
+**When web tools are unavailable:** If WebSearch/WebFetch are denied, the agent can still produce useful research from training data. Mark confidence levels clearly: "well-documented" vs "from training data, verify against current docs." The user should know which findings may be stale.
 
 **Research quality criteria:**
 - Each track should have at least 3 concrete examples with code/config
@@ -46,7 +58,7 @@ Skip this phase for simple workflow skills (commit messages, code formatting). U
 - Community tricks should be verified against official documentation where possible
 - Note which findings are well-established vs experimental/untested
 
-The research files are intermediate artifacts — they'll be distilled into the skill's `references/` directory during Phase 2, keeping only what's needed for the skill to function.
+The research files are intermediate artifacts — they'll be distilled into the skill's `references/` directory during Phase 2.
 
 ### Phase 2: Write the Skill
 
@@ -86,6 +98,8 @@ Apply these principles (details in `references/best-practices.md`):
 - Use cross-references ("see §Config") instead of restating content
 - Target ≤300 lines for SKILL.md; move reference material to separate files
 
+**Reference file naming:** Use descriptive, lowercase-hyphenated names matching the content domain: `pio-patterns.md`, `dma-guide.md`, `common-pitfalls.md`. Prefer specificity (`dma-guide.md`) over vagueness (`techniques.md`).
+
 **Cross-model portability (if applicable):**
 - Use markdown headers as primary structure (universal)
 - Don't rely on XML tag semantics for instruction parsing (Claude-specific)
@@ -93,48 +107,38 @@ Apply these principles (details in `references/best-practices.md`):
 - Don't use prefilled responses (deprecated in Claude 4.6, never existed elsewhere)
 - Don't add CoT instructions if targeting reasoning models (they handle this internally)
 
-### Phase 3: Validate — Interpretation Test
+### Phase 3: Validate — Autonomous Test Loop
 
-After writing the skill, run an automated interpretation test. Spawn a subagent with a fresh context that receives ONLY the SKILL.md content and a test prompt. The subagent should:
+Run validation autonomously. Only involve the user if contradictions can't be resolved automatically.
 
-1. Read the SKILL.md
-2. Summarize in its own words: what this skill does, when it triggers, what rules it follows
-3. Process a sample input using the skill's instructions
-4. Report any instructions it found ambiguous or contradictory
+**Interpretation test:** Spawn a subagent with a fresh context that receives ONLY the SKILL.md content and a test prompt. The subagent should:
+1. Summarize in its own words: what this skill does, when it triggers, what rules it follows
+2. Process a sample input using the skill's instructions
+3. Report any instructions it found ambiguous or contradictory
 
-**Evaluate the subagent's response:**
-- Did it correctly identify the skill's purpose?
-- Did it follow all rules without prompting?
-- Did it miss any rules? (indicates the rule is unclear or buried)
-- Did it invent behaviors not in the skill? (indicates gaps the model filled with assumptions)
-- Did it flag any contradictions? (fix these — contradictions waste model reasoning)
+**Evaluate and fix automatically:**
+- Rules the subagent missed → make them more prominent or specific
+- Behaviors the subagent invented → add instructions to fill the gap
+- Contradictions flagged → resolve them (contradictions waste model reasoning)
+- Re-run the interpretation test after fixes to verify
 
-Use the script `scripts/validate_skill.py` to automate this. It generates test prompts, spawns a subagent, and reports a structured assessment.
+Use the script `scripts/validate_skill.py` to automate this.
 
-### Phase 4: Validate — Stress Tests
+**Stress tests:** Generate edge-case inputs:
+1. **Minimal input** — shortest valid input
+2. **Adversarial input** — input that could trigger anti-pattern behaviors
+3. **Ambiguous input** — input where correct action isn't obvious
+4. **Large input** — input near the practical size limit
 
-Generate edge-case inputs that test the skill's boundaries:
+For each test case, define a concrete assertion ("output contains X", "output is ≤Y tokens", "output format matches Z").
 
-1. **Minimal input** — shortest valid input; does the skill handle it without crashing or producing empty output?
-2. **Adversarial input** — input that could trigger anti-pattern behaviors the skill should prevent
-3. **Ambiguous input** — input where the correct action isn't obvious; does the skill's decision logic resolve it?
-4. **Large input** — input near the practical size limit; does the skill degrade gracefully?
+Run the full test → fix → re-test cycle autonomously. Report results to the user when done, including what was fixed.
 
-For each test case, define an assertion: a specific, verifiable property of the expected output (not "looks good" — concrete: "output contains X", "output is ≤Y tokens", "output format matches Z").
+### Phase 4: Compress (if needed)
 
-### Phase 5: Iterate
+Skip if SKILL.md is already ≤300 lines (common for well-structured skills with reference files).
 
-Based on validation results:
-- Fix ambiguities by making instructions more specific
-- Remove rules the subagent ignored (they may be redundant or unclear)
-- Add rules for behaviors the subagent invented (gaps in the instructions)
-- Re-run interpretation test after changes to verify the fix
-
-Stop when: the interpretation test subagent correctly identifies all rules and produces correct output on all test cases, OR the user is satisfied with the quality.
-
-### Phase 6: Compress (Optional)
-
-If the skill exceeds 300 lines or the user wants maximum token efficiency, apply compression:
+If compression is needed:
 - Move reference material to `references/` files
 - Apply telegraphic English to instructional text
 - Merge rules that cover related behaviors
@@ -156,7 +160,7 @@ Before delivering the skill, verify:
 - [ ] Cross-references used instead of repetition
 - [ ] SKILL.md body ≤300 lines (or justified if longer)
 - [ ] If research was done: findings distilled into `references/`, raw research saved separately
-- [ ] Interpretation test passed
+- [ ] Interpretation test passed (autonomous fix cycle completed)
 - [ ] At least 2 stress-test assertions verified
 
 ## Output
